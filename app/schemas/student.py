@@ -1,8 +1,10 @@
 from pydantic import BaseModel
 
+
 class StudentCreate(BaseModel):
     name: str
     email: str
+
 
 class StudentOut(BaseModel):
     id: int
@@ -10,4 +12,4 @@ class StudentOut(BaseModel):
     email: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
