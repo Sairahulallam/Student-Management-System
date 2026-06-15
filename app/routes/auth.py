@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from app.models.student import Student
 from fastapi.security import OAuth2PasswordRequestForm
 from app.db.database import get_db
 
@@ -34,6 +35,7 @@ def register(
             detail="Email already exists"
         )
 
+    # Create User
     new_user = User(
         email=user.email,
         password=hash_password(user.password),
@@ -42,9 +44,21 @@ def register(
 
     db.add(new_user)
     db.commit()
+    db.refresh(new_user)
 
-    return {"message": "User registered"}
+    # Auto-create Student Profile
+    if user.role.lower() == "student":
+        student = Student(
+            name=user.email.split("@")[0],
+            email=user.email
+        )
 
+        db.add(student)
+        db.commit()
+
+    return {
+        "message": "User registered successfully"
+    }
 
 @router.post("/login")
 def login(
